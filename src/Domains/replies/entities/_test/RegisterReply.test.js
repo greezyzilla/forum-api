@@ -1,6 +1,6 @@
-const RegisterCommentReply = require('../RegisterCommentReply');
+const RegisterReply = require('../RegisterReply');
 
-describe('a RegisterCommentReply entities', () => {
+describe('a RegisterReply entities', () => {
   it('should throw error when payload did not contain needed property', () => {
     const payload = {
       threadId: 'thread-Vlzv2qVRPnoPIMrohbYMF',
@@ -8,7 +8,7 @@ describe('a RegisterCommentReply entities', () => {
       userId: 'user-DWrT3pXe1hccYkV1eIAxS',
     };
 
-    expect(() => new RegisterCommentReply(payload)).toThrowError('REGISTER_COMMENT_REPLY.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new RegisterReply(payload)).toThrowError('REGISTER_REPLY.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload did not meet data type specification', () => {
@@ -19,10 +19,10 @@ describe('a RegisterCommentReply entities', () => {
       userId: 'user-DWrT3pXe1hccYkV1eIAxS',
     };
 
-    expect(() => new RegisterCommentReply(payload)).toThrowError('REGISTER_COMMENT_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new RegisterReply(payload)).toThrowError('REGISTER_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-  it('should create registerCommentReply object correctly', () => {
+  it('should create registerReply object correctly', () => {
     const payload = {
       content: 'sebuah komentar balasan',
       threadId: 'thread-Vlzv2qVRPnoPIMrohbYMF',
@@ -32,7 +32,7 @@ describe('a RegisterCommentReply entities', () => {
 
     const {
       content, threadId, commentId, userId,
-    } = new RegisterCommentReply(payload);
+    } = new RegisterReply(payload);
 
     expect(content).toEqual(payload.content);
     expect(threadId).toEqual(payload.threadId);

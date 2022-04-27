@@ -16,11 +16,11 @@ class RegisterCommentReply {
     content, threadId, commentId, userId,
   }) {
     if (!content || !threadId || !commentId || !userId) {
-      throw new Error('REGISTER_COMMENT_REPLY.NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('REGISTER_REPLY.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (typeof content !== 'string' || typeof threadId !== 'string' || typeof commentId !== 'string' || typeof userId !== 'string') {
-      throw new Error('REGISTER_COMMENT_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('REGISTER_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 }
