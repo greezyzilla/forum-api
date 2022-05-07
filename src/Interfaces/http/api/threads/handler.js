@@ -24,14 +24,12 @@ class ThreadsHandler {
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
     const addedThread = await addThreadUseCase.execute({ ...payload, owner });
 
-    const response = h.response({
+    return h.response({
       status: 'success',
       data: {
         addedThread,
       },
-    });
-    response.code(201);
-    return response;
+    }).code(201);
   }
 
   async postCommentHandler({
@@ -42,14 +40,12 @@ class ThreadsHandler {
     const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
     const addedComment = await addCommentUseCase.execute({ ...payload, threadId, userId });
 
-    const response = h.response({
+    return h.response({
       status: 'success',
       data: {
         addedComment,
       },
-    });
-    response.code(201);
-    return response;
+    }).code(201);
   }
 
   async getThreadHandler({ params: { threadId } }) {
@@ -86,14 +82,12 @@ class ThreadsHandler {
       ...payload, threadId, commentId, userId,
     });
 
-    const response = h.response({
+    return h.response({
       status: 'success',
       data: {
         addedReply,
       },
-    });
-    response.code(201);
-    return response;
+    }).code(201);
   }
 
   async deleteReplyHandler({
