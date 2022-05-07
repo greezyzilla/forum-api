@@ -27,24 +27,23 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return new RegisteredReply({ ...reply });
   }
 
-  async getReplyById({ replyId }) {
-    const { rows: [reply] } = await this._pool.query({
+  async getRepliesByCommentId({ commentId }) {
+    const { rows: replies } = await this._pool.query({
       text: `SELECT r.id, r.content, u.username, r.date, r.is_delete AS "isDelete"
-      FROM replies AS r
+      FROM comments AS c
+      LEFT JOIN replies AS r
+      ON c.id = r.comment_id
       LEFT JOIN users as u
       ON r.user_id = u.id
-      WHERE r.id = $1`,
-      values: [replyId],
+      WHERE c.id = $1
+      ORDER BY r.date ASC`,
+      values: [commentId],
     });
 
-    if (!reply) throw new NotFoundError('Balasan tidak ditemukan');
-
-    return new ReturnedReply(reply);
+    return replies.map((reply) => new ReturnedReply(reply));
   }
 
-  async deleteReply({ replyId, userId }) {
-    await this.verifyReplyOwner({ replyId, userId });
-
+  async deleteReply({ replyId }) {
     await this._pool.query({
       text: `UPDATE replies
         SET is_delete = $1

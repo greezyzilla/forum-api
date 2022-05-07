@@ -24,6 +24,7 @@ describe('GetThreadUseCase', () => {
           content: 'sebuah komentar',
           username: 'dicoding',
           date: '2022-04-16T07:46:58.542Z',
+          isDelete: false,
           replies: [
             new ReturnedReply({
               id: 'reply-oXX1V5f_R_pk8Z9w8D0Hv',
@@ -37,6 +38,7 @@ describe('GetThreadUseCase', () => {
               content: 'sebuah balasan',
               username: 'dicoding',
               date: '2022-04-16T07:47:20.004Z',
+              isDelete: false,
             }),
           ],
         }),
@@ -45,7 +47,6 @@ describe('GetThreadUseCase', () => {
           content: 'sebuah komentar',
           username: 'mawar',
           date: '2022-04-16T07:49:58.503Z',
-          replies: [],
           isDelete: true,
         }),
       ],
@@ -54,28 +55,26 @@ describe('GetThreadUseCase', () => {
     const dummyComments = [
       {
         id: 'comment-QgQEQ_pXXa3l3M7j5D_LU',
+        threadId: 'thread-123',
         content: 'sebuah komentar',
         username: 'dicoding',
         date: '2022-04-16T07:46:58.542Z',
-        replies: [
-          { replyId: 'reply-oXX1V5f_R_pk8Z9w8D0Hv' },
-          { replyId: 'reply-nYB-PmZ8IiNYyLHRotOS-' },
-        ],
+        isDelete: false,
       },
       {
         id: 'comment-V4fnXZLcQbZa_4noRBPhp',
+        threadId: 'thread-123',
         content: 'sebuah komentar',
         username: 'mawar',
         date: '2022-04-16T07:49:58.503Z',
-        replies: [],
         isDelete: true,
       },
       {
         id: 'comment-NjalBUAkUKoaz3o2Phehv',
+        threadId: 'thread-xxx',
         content: 'balasan ini tidak diambil',
         username: 'dicoding',
         date: '2022-04-16T07:46:58.542Z',
-        replies: [],
         isDelete: true,
       },
     ];
@@ -83,6 +82,7 @@ describe('GetThreadUseCase', () => {
     const dummyReplies = [
       {
         id: 'reply-oXX1V5f_R_pk8Z9w8D0Hv',
+        commentId: 'comment-QgQEQ_pXXa3l3M7j5D_LU',
         content: 'sebuah balasan',
         username: 'johndoe',
         date: '2022-04-16T07:47:17.514Z',
@@ -90,12 +90,15 @@ describe('GetThreadUseCase', () => {
       },
       {
         id: 'reply-nYB-PmZ8IiNYyLHRotOS-',
+        commentId: 'comment-QgQEQ_pXXa3l3M7j5D_LU',
         content: 'sebuah balasan',
         username: 'dicoding',
         date: '2022-04-16T07:47:20.004Z',
+        isDelete: false,
       },
       {
         id: 'reply-FFpqF0eLeFQ9RzSnEZhsU',
+        commentId: 'comment-NjalBUAkUKoaz3o2Phehv',
         content: 'balasan ini tidak diambil',
         username: 'dicoding',
         date: '2022-04-16T07:47:20.004Z',
@@ -112,20 +115,16 @@ describe('GetThreadUseCase', () => {
       body: 'sebuah body thread',
       date: 'placeholder',
       username: 'dicoding',
-      comments: [
-        { commentId: 'comment-QgQEQ_pXXa3l3M7j5D_LU' },
-        { commentId: 'comment-V4fnXZLcQbZa_4noRBPhp' },
-      ],
     })));
 
-    mockCommentRepository.getCommentById = jest.fn(({ commentId }) => {
-      const [comment] = dummyComments.filter((item) => item.id === commentId);
-      return Promise.resolve(new ReturnedComment(comment));
+    mockCommentRepository.getCommentsByThreadId = jest.fn(({ threadId }) => {
+      const comments = dummyComments.filter((item) => item.threadId === threadId);
+      return Promise.resolve(comments.map((comment) => new ReturnedComment(comment)));
     });
 
-    mockReplyRepository.getReplyById = jest.fn(({ replyId }) => {
-      const [reply] = dummyReplies.filter((item) => item.id === replyId);
-      return Promise.resolve(new ReturnedReply(reply));
+    mockReplyRepository.getRepliesByCommentId = jest.fn(({ commentId }) => {
+      const replies = dummyReplies.filter((item) => item.commentId === commentId);
+      return Promise.resolve(replies.map((reply) => new ReturnedReply(reply)));
     });
 
     const getThreadUseCase = new GetThreadUseCase({
@@ -139,7 +138,7 @@ describe('GetThreadUseCase', () => {
     expect(returnedThread).toStrictEqual(expectedReturnedThread);
     expect(mockThreadRepository.getThreadById).toBeCalledWith(useCasePayload);
     expect(mockThreadRepository.getThreadById).toBeCalledTimes(1);
-    expect(mockCommentRepository.getCommentById).toBeCalledTimes(2);
-    expect(mockReplyRepository.getReplyById).toBeCalledTimes(2);
+    expect(mockCommentRepository.getCommentsByThreadId).toBeCalledTimes(1);
+    expect(mockReplyRepository.getRepliesByCommentId).toBeCalledTimes(2);
   });
 });

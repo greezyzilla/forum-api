@@ -86,45 +86,44 @@ describe('CommentRepository.test', () => {
     });
   });
 
-  describe('getCommentById', () => {
-    it('should throw NotFoundError when comment not found', async () => {
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-      await expect(commentRepositoryPostgres
-        .getCommentById({ commentId: 'comment-mawar' }))
-        .rejects.toThrowError(NotFoundError);
-    });
-
-    it('should return data correctly when comment is not deleted', async () => {
+  describe('getCommentsByThreadId', () => {
+    it('should return empty array when no comments found', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       const comment = await commentRepositoryPostgres
-        .getCommentById({ commentId: 'comment-melati' });
+        .getCommentsByThreadId({ threadId: 'thread-xxx' });
 
-      expect(comment).toStrictEqual(new ReturnedComment({
+      expect(comment).toStrictEqual([]);
+    });
+
+    it('should return data correctly when a comment is not deleted', async () => {
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      const comment = await commentRepositoryPostgres
+        .getCommentsByThreadId({ threadId: 'thread-mawar' });
+
+      expect(comment).toStrictEqual([new ReturnedComment({
         id: 'comment-melati',
         content: 'ini komentar melati',
         username: 'melati',
         date: 'date-comment-melati',
-        replies: [],
-      }));
+      })]);
     });
 
-    it('should return data correctly when comment is deleted', async () => {
+    it('should return data correctly when a comment is deleted', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await CommentsTableTestHelper.deleteComment('comment-melati');
       const comment = await commentRepositoryPostgres
-        .getCommentById({ commentId: 'comment-melati' });
+        .getCommentsByThreadId({ threadId: 'thread-mawar' });
 
-      expect(comment).toStrictEqual(new ReturnedComment({
+      expect(comment).toStrictEqual([new ReturnedComment({
         id: 'comment-melati',
         content: 'ini komentar melati',
         username: 'melati',
         date: 'date-comment-melati',
-        replies: [],
         isDelete: true,
-      }));
+      })]);
     });
   });
 
@@ -176,24 +175,6 @@ describe('CommentRepository.test', () => {
   });
 
   describe('deleteComment', () => {
-    it('should throw NotFoundError when comment not found', async () => {
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-      await expect(commentRepositoryPostgres.deleteComment({
-        commentId: 'xxx',
-        userId: 'user-mawar',
-      })).rejects.toThrowError(NotFoundError);
-    });
-
-    it('should throw AuthorizationError when the owner is not valid', async () => {
-      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
-      await expect(commentRepositoryPostgres.deleteComment({
-        commentId: 'comment-melati',
-        userId: 'user-mawar',
-      })).rejects.toThrowError(AuthorizationError);
-    });
-
     it('Should delete comment when payload is valid', async () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 

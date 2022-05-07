@@ -25,24 +25,20 @@ class CommentRepositoryPostgres extends CommentRepository {
     return new RegisteredComment({ ...comment });
   }
 
-  async getCommentById({ commentId }) {
-    const { rows: [comment] } = await this._pool.query({
+  async getCommentsByThreadId({ threadId }) {
+    const { rows: comments } = await this._pool.query({
       text: `SELECT c.id, c.content, u.username, c.date, c.is_delete AS "isDelete"
-      FROM comments AS c
+      FROM threads AS t
+      LEFT JOIN comments AS c
+      ON t.id = c.thread_id
       LEFT JOIN users as u
       ON c.user_id = u.id
-      WHERE c.id = $1`,
-      values: [commentId],
+      WHERE t.id = $1
+      ORDER BY c.date ASC`,
+      values: [threadId],
     });
 
-    if (!comment) throw new NotFoundError('Komentar tidak ditemukan');
-
-    const { rows: replies } = await this._pool.query({
-      text: 'SELECT id as "replyId" FROM replies WHERE comment_id = $1 ORDER BY date ASC',
-      values: [commentId],
-    });
-
-    return new ReturnedComment({ ...comment, replies });
+    return comments.map((comment) => new ReturnedComment(comment));
   }
 
   async verifyCommentById({ commentId }) {
@@ -61,8 +57,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (commentIds.user_id !== userId) throw new AuthorizationError('Anda tidak memiliki hak hapus pada resource ini');
   }
 
-  async deleteComment({ commentId, userId }) {
-    await this.verifyCommentOwner({ commentId, userId });
+  async deleteComment({ commentId }) {
     await this._pool.query({
       text: `UPDATE comments
       SET is_delete = $1

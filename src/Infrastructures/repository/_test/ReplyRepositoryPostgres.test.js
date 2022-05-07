@@ -97,43 +97,44 @@ describe('ReplyRepositoryPostgres', () => {
     });
   });
 
-  describe('getReplyById', () => {
-    it('should throw NotFoundError when reply not found', async () => {
+  describe('getRepliesByCommentId', () => {
+    it('should return empty array when no replies found', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
-      await expect(replyRepositoryPostgres
-        .getReplyById({ replyId: 'xxx' }))
-        .rejects.toThrowError(NotFoundError);
+      const replies = await replyRepositoryPostgres
+        .getRepliesByCommentId({ commentId: 'comment-xxx' });
+
+      expect(replies).toStrictEqual([]);
     });
 
-    it('should return data correctly when reply is not deleted', async () => {
+    it('should return data correctly when a reply is not deleted', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
-      const reply = await replyRepositoryPostgres
-        .getReplyById({ replyId: 'reply-mawar' });
+      const replies = await replyRepositoryPostgres
+        .getRepliesByCommentId({ commentId: 'comment-melati' });
 
-      expect(reply).toStrictEqual(new ReturnedReply({
+      expect(replies).toStrictEqual([new ReturnedReply({
         id: 'reply-mawar',
         content: 'sebuah balasan dari mawar',
         username: 'mawar',
         date: 'date-reply-mawar',
-      }));
+      })]);
     });
 
-    it('should return data correctly when reply is deleted', async () => {
+    it('should return data correctly when a reply is deleted', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       await RepliesTableTestHelper.deleteReply('reply-mawar');
-      const reply = await replyRepositoryPostgres
-        .getReplyById({ replyId: 'reply-mawar' });
+      const replies = await replyRepositoryPostgres
+        .getRepliesByCommentId({ commentId: 'comment-melati' });
 
-      expect(reply).toStrictEqual(new ReturnedReply({
+      expect(replies).toStrictEqual([new ReturnedReply({
         id: 'reply-mawar',
         content: 'sebuah balasan dari mawar',
         username: 'mawar',
         date: 'date-reply-mawar',
         isDelete: true,
-      }));
+      })]);
     });
   });
 
@@ -183,24 +184,6 @@ describe('ReplyRepositoryPostgres', () => {
   });
 
   describe('deleteReply', () => {
-    it('should throw NotFoundError when reply not found', async () => {
-      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
-
-      await expect(replyRepositoryPostgres.deleteReply({
-        replyId: 'xxx',
-        userId: 'user-mawar',
-      })).rejects.toThrowError(NotFoundError);
-    });
-
-    it('should throw AuthorizationError when the owner is not valid', async () => {
-      const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
-
-      await expect(replyRepositoryPostgres.deleteReply({
-        replyId: 'reply-mawar',
-        userId: 'user-melati',
-      })).rejects.toThrowError(AuthorizationError);
-    });
-
     it('Should delete reply when payload is valid', async () => {
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 

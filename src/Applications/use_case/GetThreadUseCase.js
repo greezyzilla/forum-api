@@ -1,7 +1,6 @@
 const ReturnedComment = require('../../Domains/comments/entities/ReturnedComment');
 const ReturnedThread = require('../../Domains/threads/entities/ReturnedThread');
 
-/* eslint-disable no-await-in-loop */
 class GetThreadUseCase {
   constructor({ threadRepository, commentRepository, replyRepository }) {
     this._threadRepository = threadRepository;
@@ -11,26 +10,19 @@ class GetThreadUseCase {
 
   async execute(useCasePayload) {
     const thread = await this._threadRepository.getThreadById(useCasePayload);
+    const comments = await this._commentRepository.getCommentsByThreadId(useCasePayload);
 
-    const comments = [];
-    for (let i = 0; i < thread.comments.length; i += 1) {
-      const comment = await this._commentRepository.getCommentById({
-        commentId: thread.comments[i].commentId,
+    const commentsWithRepliesPromises = comments.map(async (comment) => {
+      const replies = await this._replyRepository.getRepliesByCommentId({
+        commentId: comment.id,
       });
 
-      const replies = [];
-      for (let j = 0; j < comment.replies.length; j += 1) {
-        const reply = await this._replyRepository.getReplyById({
-          replyId: comment.replies[j].replyId,
-        });
+      return new ReturnedComment({ ...comment, replies });
+    });
 
-        replies.push(reply);
-      }
+    const commentsWithReplies = await Promise.all(commentsWithRepliesPromises);
 
-      comments.push(new ReturnedComment({ ...comment, replies }));
-    }
-
-    return new ReturnedThread({ ...thread, comments });
+    return new ReturnedThread({ ...thread, comments: commentsWithReplies });
   }
 }
 

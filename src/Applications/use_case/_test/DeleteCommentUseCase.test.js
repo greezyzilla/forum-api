@@ -29,6 +29,6 @@ describe('DeleteCommentUseCase', () => {
     expect(mockCommentRepository.verifyCommentOwner)
       .toBeCalledWith({ commentId: useCasePayload.commentId, userId: useCasePayload.userId });
     expect(mockCommentRepository.deleteComment)
-      .toBeCalledWith({ commentId: useCasePayload.commentId, userId: useCasePayload.userId });
+      .toBeCalledWith({ commentId: useCasePayload.commentId });
   });
 });

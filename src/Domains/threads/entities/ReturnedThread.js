@@ -3,7 +3,7 @@ class ReturnedThread {
     this._verifyPayload(payload);
 
     const {
-      id, title, body, date, username, comments,
+      id, title, body, date, username, comments = [],
     } = payload;
 
     this.id = id;
@@ -11,13 +11,14 @@ class ReturnedThread {
     this.body = body;
     this.date = date;
     this.username = username;
-    this.comments = comments;
+
+    if (comments.length > 0) this.comments = comments;
   }
 
   _verifyPayload({
-    id, title, body, date, username, comments,
+    id, title, body, date, username,
   }) {
-    if (!id || !title || !body || !date || !username || comments === undefined) {
+    if (!id || !title || !body || !date || !username) {
       throw new Error('RETURNED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
@@ -27,7 +28,6 @@ class ReturnedThread {
         || typeof body !== 'string'
         || typeof username !== 'string'
         || typeof date !== 'string'
-        || typeof comments !== 'object'
     ) {
       throw new Error('RETURNED_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
     }

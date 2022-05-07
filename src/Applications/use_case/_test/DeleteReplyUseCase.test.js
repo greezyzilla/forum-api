@@ -18,6 +18,7 @@ describe('DeleteReplyUseCase', () => {
 
     mockThreadRepository.verifyThreadById = jest.fn(() => Promise.resolve());
     mockCommentRepository.verifyCommentById = jest.fn(() => Promise.resolve());
+    mockReplyRepository.verifyReplyOwner = jest.fn(() => Promise.resolve());
     mockReplyRepository.deleteReply = jest.fn(() => Promise.resolve());
 
     const deleteReplyUseCase = new DeleteReplyUseCase({
@@ -32,7 +33,9 @@ describe('DeleteReplyUseCase', () => {
       .toBeCalledWith({ threadId: useCasePayload.threadId });
     expect(mockCommentRepository.verifyCommentById)
       .toBeCalledWith({ commentId: useCasePayload.commentId });
-    expect(mockReplyRepository.deleteReply)
+    expect(mockReplyRepository.verifyReplyOwner)
       .toBeCalledWith({ replyId: useCasePayload.replyId, userId: useCasePayload.userId });
+    expect(mockReplyRepository.deleteReply)
+      .toBeCalledWith({ replyId: useCasePayload.replyId });
   });
 });
