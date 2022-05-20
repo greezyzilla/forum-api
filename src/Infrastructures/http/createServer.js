@@ -53,7 +53,6 @@ const createServer = async (container) => {
     const { response } = request;
     if (response instanceof Error) {
       const translatedError = DomainErrorTranslator.translate(response);
-      console.log(response.message);
 
       if (translatedError instanceof ClientError) {
         const newResponse = h.response({
