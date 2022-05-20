@@ -3,13 +3,14 @@ class ReturnedComment {
     this._verifyPayload(payload);
 
     const {
-      id, content, username, date, replies = [], isDelete = false,
+      id, content, username, date, replies = [], isDelete = false, likeCount = 0,
     } = payload;
 
     this.id = id;
     this.content = isDelete ? '**komentar telah dihapus**' : content;
     this.username = username;
     this.date = date;
+    this.likeCount = likeCount;
 
     if (replies.length > 0) this.replies = replies;
   }
