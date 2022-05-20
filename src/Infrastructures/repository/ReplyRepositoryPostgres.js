@@ -40,7 +40,8 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       values: [commentId],
     });
 
-    return replies.map((reply) => new ReturnedReply(reply));
+    if (replies[0]?.id) return replies.map((reply) => new ReturnedReply(reply));
+    return [];
   }
 
   async deleteReply({ replyId }) {

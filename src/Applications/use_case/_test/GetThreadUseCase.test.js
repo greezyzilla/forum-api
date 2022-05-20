@@ -1,6 +1,7 @@
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
+const LikeRepository = require('../../../Domains/likes/LikeRepository');
 const GetThreadUseCase = require('../GetThreadUseCase');
 const ReturnedThread = require('../../../Domains/threads/entities/ReturnedThread');
 const ReturnedComment = require('../../../Domains/comments/entities/ReturnedComment');
@@ -108,6 +109,7 @@ describe('GetThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockLikeRepository = new LikeRepository();
 
     mockThreadRepository.getThreadById = jest.fn(() => Promise.resolve(new ReturnedThread({
       id: 'thread-123',
@@ -127,10 +129,13 @@ describe('GetThreadUseCase', () => {
       return Promise.resolve(replies.map((reply) => new ReturnedReply(reply)));
     });
 
+    mockLikeRepository.getLikeCountByCommentId = jest.fn();
+
     const getThreadUseCase = new GetThreadUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     const returnedThread = await getThreadUseCase.execute(useCasePayload);
@@ -140,5 +145,6 @@ describe('GetThreadUseCase', () => {
     expect(mockThreadRepository.getThreadById).toBeCalledTimes(1);
     expect(mockCommentRepository.getCommentsByThreadId).toBeCalledTimes(1);
     expect(mockReplyRepository.getRepliesByCommentId).toBeCalledTimes(2);
+    expect(mockLikeRepository.getLikeCountByCommentId).toBeCalledTimes(2);
   });
 });
