@@ -1,4 +1,3 @@
-const InvariantError = require('../../Commons/exceptions/InvariantError');
 const LikeRepository = require('../../Domains/likes/LikeRepository');
 
 class LikeRepositoryPostgres extends LikeRepository {
@@ -20,12 +19,10 @@ class LikeRepositoryPostgres extends LikeRepository {
   async addLike({ commentId, userId }) {
     const id = `like-${this._idGenerator()}`;
 
-    const result = await this._pool.query({
+    await this._pool.query({
       text: 'INSERT INTO likes VALUES($1, $2, $3) RETURNING id',
       values: [id, commentId, userId],
     });
-
-    if (!result.rowCount) throw new InvariantError('Gagal menambahkan like');
   }
 
   async removeLike({ commentId, userId }) {
